@@ -1,0 +1,18 @@
+{
+  "name": "wx-gzhkf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "koa": "^2.5.1",
+    "koa-xml-body": "^2.0.0",
+    "raw-body": "^2.3.3",
+    "sha1": "^1.1.1"
+  }
+}
