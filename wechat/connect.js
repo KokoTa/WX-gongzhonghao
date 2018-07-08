@@ -1,11 +1,14 @@
+/**
+ * 微信验证、微信消息接收
+ */
 const sha1 = require('sha1');
 const Wechat = require('./wechat');
 const util = require('../libs/util');
 
 // 该导出函数用来管理微信接口
-module.exports = (config) => {
+module.exports = (config, replyContent) => {
   // 先生成票据管理实例
-  // const wechat = new Wechat(config);
+  const wechat = new Wechat(config);
 
   // 后进行微信连接
   return async (ctx, next) => {
@@ -26,6 +29,7 @@ module.exports = (config) => {
         ctx.body = echostr + '';
       } else {
         ctx.body = "不是微信的请求，拒绝处理";
+        return false;
       }
     }
     // 如果是 POST　请求，说明是消息发送请求
@@ -45,24 +49,12 @@ module.exports = (config) => {
       console.log(msg);
       console.log('');
 
-      // 判断消息类型
-      if (msg.MsgType === 'event') {
-        if (msg.Event === 'subscribe') {
-        const now = new Date().getTime();
-        const reply = `<xml>
-          <ToUserName><![CDATA[${msg.FromUserName}]]></ToUserName>
-          <FromUserName><![CDATA[${msg.ToUserName}]]></FromUserName>
-          <CreateTime>${now}</CreateTime>
-          <MsgType><![CDATA[text]]></MsgType>
-          <Content><![CDATA[欢迎关注KokoTa的公众号]]></Content>
-        </xml>`;
-        ctx.status = 200;
-        ctx.type = 'application/xml';
-        ctx.body = reply;
-        }
-      }
+      // 传入信息，进行回复操作
+      wechat.reply(ctx, msg);
       
       // ctx.body = 'success';
+
+      return true;
     }
 
     next();

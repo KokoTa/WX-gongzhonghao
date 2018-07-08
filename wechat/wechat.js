@@ -1,7 +1,12 @@
+/**
+ * 微信功能处理：凭证管理，回复管理
+ */
 const axios = require('axios');
 //https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140183
 const api = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential';
 
+const util = require('../libs/util');
+const replyContent = require('./replyContent');
 
 // access_token 处理函数
 function Wechat(opts) {
@@ -66,6 +71,18 @@ Wechat.prototype.updateAccessToken = function() {
       return data;
     }
   })
+}
+
+// 消息回复
+Wechat.prototype.reply = function(ctx, msg) {
+  ctx.status = 200;
+  ctx.type = 'application/xml';
+
+  const reply = replyContent(msg); // 根据消息类型决定回复内容
+  const xml = util.formatReplyInfo(msg, reply); // 格式化回复信息
+  console.log(xml);
+  
+  ctx.body = xml;
 }
 
 module.exports = Wechat;
