@@ -60,7 +60,7 @@ function checkType(info) {
 
 function newsHandle(articles) {
   let str = '';
-
+  console.log(articles);
   articles.forEach((item) => {
     str += `
       <item>

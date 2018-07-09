@@ -6,14 +6,14 @@ const Wechat = require('./wechat');
 const util = require('../libs/util');
 
 // 该导出函数用来管理微信接口
-module.exports = (config, replyContent) => {
+module.exports = (config) => {
   // 先生成票据管理实例
   const wechat = new Wechat(config);
 
   // 后进行微信连接
   return async (ctx, next) => {
     // 微信验证规则：https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421135319
-    const token = config.token;
+    const token = config.wechat.token;
 
     const signature = ctx.query.signature;
     const nonce = ctx.query.nonce;

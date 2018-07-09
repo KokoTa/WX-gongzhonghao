@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
+    "form-data": "^2.3.2",
     "koa": "^2.5.1",
     "koa-xml-body": "^2.0.0",
     "raw-body": "^2.3.3",

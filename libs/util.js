@@ -1,4 +1,5 @@
 const fs = require('fs');
+const replyContent = require('../wechat/replyContent');
 const createTemplate = require('../wechat/template');
 
 // 本地读取
@@ -64,13 +65,14 @@ exports.formatXML = (xml) => {
 }
 
 // 格式化回复信息
-exports.formatReplyInfo = (msg, replyContent) => {
+exports.formatReplyInfo = (msg, wechat) => {
+  const reply = replyContent(msg, wechat); // 根据消息类型来决定回复内容
+
   const info = {
     ToUserName: msg.ToUserName,
     FromUserName: msg.FromUserName,
     CreateTime: new Date().getTime(),
-    MsgType: replyContent.MsgType,
-    Content: replyContent.Content,
+    ...reply,
   };
 
   const xml = createTemplate(info); // 转为 xml

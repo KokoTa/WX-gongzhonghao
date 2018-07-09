@@ -4,6 +4,7 @@
 const path = require('path');
 const util = require('./libs/util');
 const accessTokenFile = path.join(__dirname, './wechat/accessTokenFile.txt');
+const prefix = 'https://api.weixin.qq.com/cgi-bin';
 
 const config = {
   wechat: { // 对应公众平台上的参数
@@ -17,6 +18,10 @@ const config = {
       data = JSON.stringify(data);
       return util.writeFileAsync(accessTokenFile, data);
     }
+  },
+  api: {
+    accessTokenUrl: `${prefix}/token?grant_type=client_credential`,
+    uploadTempleUrl: `${prefix}/media/upload?`
   }
 };
 
