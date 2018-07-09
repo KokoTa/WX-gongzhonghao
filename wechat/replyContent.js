@@ -90,6 +90,22 @@ async function replyContent(msg, wechat) {
       const result = await wechat.uploadTemple(path.join(__dirname, '../image/01.jpg'), 'image');
       reply.MsgType = 'image';
       reply.MediaId = result.media_id;
+    } else if (content === '6') {
+      // 如果网速卡，微信会发三次请求，当过了几秒后视频/音乐还没上传完，就判定失败
+      const result = await wechat.uploadTemple(path.join(__dirname, '../video/01.mp4'), 'video');
+      reply.MsgType = 'video';
+      reply.MediaId = result.media_id;
+      reply.Title = '视频01';
+      reply.Description = '这是一个测试视频';
+    } else if (content === '7') {
+      const img = await wechat.uploadTemple(path.join(__dirname, '../image/01.jpg'), 'image');
+      // const music = await wechat.uploadTemple(path.join(__dirname, '../music/01.mp3'), 'music');
+      reply.MsgType = 'music';
+      reply.Title = '音乐01';
+      reply.Description = '这是一个测试音乐';
+      reply.MusicURL = 'http://www.ytmp3.cn/?down/48732.mp3';
+      reply.HQMusicUrl = 'http://www.ytmp3.cn/?down/48732.mp3';
+      reply.ThumbMediaId = img.media_id;
     }
 
     return reply;

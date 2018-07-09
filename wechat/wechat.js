@@ -98,7 +98,7 @@ Wechat.prototype.uploadTemple = function(filePath, type) {
 
         // https://cnodejs.org/topic/57e17beac4ae8ff239776de5
         const form = new FormData();
-        form.append('media', fs.createReadStream(filePath), '01.jpg'); // 这里 media 字段是对应文档的
+        form.append('media', fs.createReadStream(filePath)); // 这里 media 字段是对应文档的
 
         form.getLength((err, length) => {
           if (err) reject(err);
@@ -106,11 +106,12 @@ Wechat.prototype.uploadTemple = function(filePath, type) {
           axios.post(url, form, {
             headers: Object.assign({ 'Content-Length':length }, form.getHeaders()) // 当数据是 stream 的时候，并没有自动设置content-length；form-data 格式下的 content-type 会有额外的 boundary
           }).then((res) => {
+            console.log(res.data);
             resolve(res.data);
           });
         });
       } else {
-        console.log('access_token 已超时');
+        throw new Error('access_token 已超时');
       }
     }).catch(err => console.log(err));
   })

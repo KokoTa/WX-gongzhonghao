@@ -42,12 +42,9 @@ module.exports = (config) => {
       // 由于微信发送过来的是 xml 格式的数据，而 koa 只解析 json 格式的数据，所以得不到数据内容
       // 这里引入了 koa-xml-body 来解析 xml
       const xml = ctx.request.body.xml;
-      console.log(xml);
-      console.log('');
       // 拿到 xml 数据后，需要进行格式化
       const msg = util.formatXML(xml);
       console.log(msg);
-      console.log('');
 
       // 传入信息，进行回复操作
       await wechat.reply(ctx, msg);
