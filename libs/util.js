@@ -65,8 +65,8 @@ exports.formatXML = (xml) => {
 }
 
 // 格式化回复信息
-exports.formatReplyInfo = (msg, wechat) => {
-  const reply = replyContent(msg, wechat); // 根据消息类型来决定回复内容
+exports.formatReplyInfo = async (msg, wechat) => {
+  const reply = await replyContent(msg, wechat); // 根据消息类型来决定回复内容
 
   const info = {
     ToUserName: msg.ToUserName,

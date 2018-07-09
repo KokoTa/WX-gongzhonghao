@@ -5,7 +5,7 @@
  */
 const path = require('path');
 
-function replyContent(msg, wechat) {
+async function replyContent(msg, wechat) {
   // 当类型为事件
   if (msg.MsgType === 'event') {
     if (msg.Event === 'subscribe') {
@@ -87,11 +87,9 @@ function replyContent(msg, wechat) {
       ];
       reply.ArticleCount = reply.Articles.length;
     } else if (content === '5') {
-      wechat.uploadTemple(path.join(__dirname, '../image/01.jpg'), 'image')
-        .then((res) => {
-          reply.MsgType = 'image';
-          reply.MediaId = res.media_id;
-        });
+      const result = await wechat.uploadTemple(path.join(__dirname, '../image/01.jpg'), 'image');
+      reply.MsgType = 'image';
+      reply.MediaId = result.media_id;
     }
 
     return reply;

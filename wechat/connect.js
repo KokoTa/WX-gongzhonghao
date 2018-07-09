@@ -50,7 +50,7 @@ module.exports = (config) => {
       console.log('');
 
       // 传入信息，进行回复操作
-      wechat.reply(ctx, msg);
+      await wechat.reply(ctx, msg);
       
       // ctx.body = 'success';
 

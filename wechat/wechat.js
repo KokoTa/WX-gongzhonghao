@@ -91,24 +91,29 @@ Wechat.prototype.reply = async function(ctx, msg) {
 Wechat.prototype.uploadTemple = function(filePath, type) {
   const api = this.api;
   // 判断access_token合法性
-  return this.getAccessToken().then((data) => {
-    if (this.isValidAccessToken(JSON.parse(data))) {
-      const url = `${api.uploadTempleUrl}access_token=${this.access_token}&type=${type}`;
+  return new Promise((resolve, reject) => {
+    this.getAccessToken().then((data) => {
+      if (this.isValidAccessToken(JSON.parse(data))) {
+        const url = `${api.uploadTempleUrl}access_token=${this.access_token}&type=${type}`;
 
-      // https://cnodejs.org/topic/57e17beac4ae8ff239776de5
-      const form = new FormData();
-      form.append('media', fs.createReadStream(filePath), '01.jpg'); // 这里 media 字段是对应文档的
-      form.getLength((err, length) => {
-        if (err) return err;
-        const res = axios.post(url, form, {
-          headers: Object.assign({ 'Content-Length':length }, form.getHeaders()) // 当数据是 stream 的时候，并没有自动设置content-length；form-data 格式下的 content-type 会有额外的 boundary
+        // https://cnodejs.org/topic/57e17beac4ae8ff239776de5
+        const form = new FormData();
+        form.append('media', fs.createReadStream(filePath), '01.jpg'); // 这里 media 字段是对应文档的
+
+        form.getLength((err, length) => {
+          if (err) reject(err);
+
+          axios.post(url, form, {
+            headers: Object.assign({ 'Content-Length':length }, form.getHeaders()) // 当数据是 stream 的时候，并没有自动设置content-length；form-data 格式下的 content-type 会有额外的 boundary
+          }).then((res) => {
+            resolve(res.data);
+          });
         });
-        return res.data;
-      });
-    } else {
-      console.log('access_token 已超时');
-    }
-  });
+      } else {
+        console.log('access_token 已超时');
+      }
+    }).catch(err => console.log(err));
+  })
 }
 
 module.exports = Wechat;
