@@ -87,34 +87,119 @@ Wechat.prototype.reply = async function(ctx, msg) {
   ctx.body = xml;
 }
 
-// 上传临时素材
-Wechat.prototype.uploadTemple = function(filePath, type) {
+// 上传素材
+Wechat.prototype.uploadMaterial = function(filePath, type, permanent = false, obj = {}) {
   const api = this.api;
   // 判断access_token合法性
   return new Promise((resolve, reject) => {
     this.getAccessToken().then((data) => {
       if (this.isValidAccessToken(JSON.parse(data))) {
-        const url = `${api.uploadTempleUrl}access_token=${this.access_token}&type=${type}`;
+        let url = `${api.uploadTempleUrl}access_token=${this.access_token}&type=${type}`;
+        // 是否永久素材
+        if (permanent) {
+          console.log('Is permanent');
+          url = `${api.uploadPermanentUrl}access_token=${this.access_token}&type=${type}`;
+        }
 
         // https://cnodejs.org/topic/57e17beac4ae8ff239776de5
         const form = new FormData();
         form.append('media', fs.createReadStream(filePath)); // 这里 media 字段是对应文档的
 
-        form.getLength((err, length) => {
-          if (err) reject(err);
+        // 是否永久视频
+        if (permanent && type === 'video') {
+          form.append('description', obj.jsonString);
+        }
 
-          axios.post(url, form, {
-            headers: Object.assign({ 'Content-Length':length }, form.getHeaders()) // 当数据是 stream 的时候，并没有自动设置content-length；form-data 格式下的 content-type 会有额外的 boundary
-          }).then((res) => {
-            console.log(res.data);
-            resolve(res.data);
+        // 是否永久图文素材内容中的图片
+        if (permanent && type === 'image' && obj.alias === 'news') {
+          url = `${api.uploadNewsImage}access_token=${this.access_token}`;
+        }
+        // 是否永久图文素材
+        if (permanent && type === 'news') {
+          url = `${api.uploadNews}access_token=${this.access_token}`;
+          axios.post(url, obj.articles)
+            .then((res) => {
+              console.log(res.data);
+              resolve(res.data);
+            });
+        } else {
+          form.getLength((err, length) => {
+            if (err) reject(err);
+
+            axios.post(url, form, {
+              headers: Object.assign({ 'Content-Length':length }, form.getHeaders()) // 当数据是 stream 的时候，并没有自动设置content-length；form-data 格式下的 content-type 会有额外的 boundary
+            }).then((res) => {
+              console.log(res.data);
+              resolve(res.data);
+            });
           });
-        });
+        }
+
       } else {
         throw new Error('access_token 已超时');
       }
     }).catch(err => console.log(err));
   })
+}
+
+// 获取素材
+Wechat.prototype.getMaterial = function(media_id, type, permanent = false) {
+  const api = this.api;
+  return new Promise((resolve, reject) => {
+    this.getAccessToken().then(async (data) => {
+      if (this.isValidAccessToken(JSON.parse(data))) {
+        const url = `${api.getTempleUrl}access_token=${this.access_token}&media_id=${media_id}`;
+        const options = {
+          method: 'get',
+          url: url,
+          responseType: 'arraybuffer',
+        };
+
+        // 是否是永久素材
+        if (permanent) {
+          url = `${api.getPermanentUrl}access_token=${this.access_token}`;
+          options.data = {
+            media_id,
+          };
+        }
+        
+        // 视频文件不支持https下载，调用该接口需http协议
+        if (type === 'video') {
+          url.replace('https', 'http');
+        }
+
+        axios(options).then((res) => resolve(res.data));
+
+      } else {
+        throw new Error('access_token 已超时');
+      }
+    }).catch(err => console.log(err));
+  })
+}
+
+Wechat.prototype.downloadMaterial = async function(data) {
+  if (Buffer.isBuffer(data)) {
+    const buffer = Buffer.from(data);
+    await fs.writeFile('./xx.jpg', buffer, (err) => {
+      if (err) err;
+      console.log('图片下载成功');
+    });
+  }
+  else if (typeof data === 'object') {
+    const url = data.video_url;
+    const options = {
+      method: 'get',
+      url: url,
+      responseType: 'arraybuffer',
+    };
+    await axios(options).then(async (res) => {
+      const buffer = Buffer.from(res.data);
+      fs.writeFile('./xx.mp4', buffer, (err) => {
+        if (err) err;
+        console.log('视频下载成功');
+      });
+    })
+  }
 }
 
 module.exports = Wechat;

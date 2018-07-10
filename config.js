@@ -20,8 +20,13 @@ const config = {
     }
   },
   api: {
-    accessTokenUrl: `${prefix}/token?grant_type=client_credential`,
-    uploadTempleUrl: `${prefix}/media/upload?`
+    accessTokenUrl: `${prefix}/token?grant_type=client_credential`, // access_token
+    uploadTempleUrl: `${prefix}/media/upload?`, // 上传临时素材
+    uploadPermanentUrl: `${prefix}/material/add_material?`, // 上传永久素材
+    uploadNews: `${prefix}/material/add_news?`, // 上传永久图文
+    uploadNewsImage: `${prefix}/media/uploadimg?`, // 上传永久图文的图片
+    getTempleUrl: `${prefix}/media/get?`, // 获取临时素材
+    getPermanentUrl: `${prefix}/material/get_material?`, // 获取永久素材
   }
 };
 
