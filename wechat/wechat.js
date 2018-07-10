@@ -270,4 +270,89 @@ Wechat.prototype.delMaterail = function(media_id) {
   return axios(options).then((res) => res.data);
 }
 
+/**
+ * 创建用户标签
+ * @param {String} tagName 
+ */
+Wechat.prototype.createTag = function(tagName) {
+  const api = this.api;
+  const url = `${api.createTag}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+    data: {
+      tag: {
+        name: tagName
+      }
+    }
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
+Wechat.prototype.getTag = function() {
+  const api = this.api;
+  const url = `${api.getTag}access_token=${this.access_token}`;
+  const options = {
+    method: 'get',
+    url
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
+Wechat.prototype.batchTag = function(openid) {
+  const api = this.api;
+  const url = `${api.batchTag}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+    data: {   
+      openid_list : [//粉丝列表    
+        openid 
+      ],   
+      tagid : 100 
+    }
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
+Wechat.prototype.getUser = function () {
+  const api = this.api;
+  const url = `${api.getUser}access_token=${this.access_token}`;
+  const options = {
+    method: 'get',
+    url
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
+Wechat.prototype.updateUserRemark = function(openid, newName) {
+  const api = this.api;
+  const url = `${api.updateUserRemark}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+    data: {
+      "openid": openid,
+      "remark": newName
+    }
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
+Wechat.prototype.getUserInfo = function(openid) {
+  const api = this.api;
+  const url = api.getUserInfo.replace(/ACCESS_TOKEN/, this.access_token).replace(/OPENID/, openid);
+  const options = {
+    method: 'get',
+    url
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
 module.exports = Wechat;

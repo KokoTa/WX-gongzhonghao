@@ -23,7 +23,7 @@ async function replyContent(msg, wechat) {
       return {
         MsgType: 'text',
         Content: `事件Key ${msg.EventKey} - 二维码的Ticket ${msg.Ticket}`
-      }
+      };
     } 
     else if (msg.Event === 'unsubscribe') {
       // 取消订阅
@@ -214,8 +214,74 @@ async function replyContent(msg, wechat) {
         reply.Content = '删除永久图片素材失败';
       }
     }
+    else if (content === '15') {
+      // 创建用户标签
+      const result = await wechat.createTag('福建');
+      if (!result.errcode) {
+        console.log('创建用户标签', result);
+        reply.Content = result;
+      } else {
+        reply.Content = '标签已存在 or 创建失败';
+      }
+      // 获取用户标签
+      const tagList = await wechat.getTag();
+      if (!tagList.errcode) {
+        console.log('获取用户标签', tagList);
+        const tags = tagList.tags.map((item) => item.name);
+        reply.Content = `目前的用户标签有：${tags}`; // 微信的换行是个谜
+      } else {
+        reply.Content = '获取用户标签失败';
+      }
+
+      // 修改用户标签略
+      // 删除用户标签略
+      
+      // 获取用户列表
+      const userList = await wechat.getUser();
+      if (!userList.errcode) {
+        console.log('获取用户列表', userList);
+        const openid = userList.data.openid[0];
+        // 为第一个用户打标签
+        const batch = await wechat.batchTag(openid);
+        if (!batch.errcode) {
+          console.log('为第一个用户打标签', batch);
+          reply.Content = '标记成功';
+        } else {
+          reply.Content = '标记失败';
+        }
+      } else {
+        reply.Content = '获取用户失败';
+      }
+    }
+    else if (content === '16') {
+      // 更改用户名(微信认证后可使用)
+      const result = await wechat.updateUserRemark(msg.FromUserName, 'KokoTa');
+      if (!result.errcode) {
+        console.log('更改用户名', result);
+        reply.Content = '更改用户名成功';
+      } else {
+        reply.Content = '更改用户名失败';
+      }
+    }
+    else if (content === '17') {
+      // 获取某用户基本信息
+      const info = await wechat.getUserInfo(msg.FromUserName);
+      if (!info.errcode) {
+        console.log('获取某用户基本信息', info);
+        reply.Content = `您的居住地为：${info.country} - ${info.province} - ${info.city}`;
+      } else {
+        reply.Content = '获取用户基本信息失败';
+      }
+    }
 
     return reply;
+  }
+  // 当类型为位置
+  else if (msg.MsgType === 'location') {
+    return {
+      MsgType: 'text',
+      Content: `您所在的位置为：${msg.Label}`
+    };
   }
 }
 
