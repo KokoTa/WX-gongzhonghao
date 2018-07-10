@@ -22,7 +22,7 @@ exports.writeFileAsync = (path, content = {}) => {
   });
 };
 
-// 格式化 xml
+// 格式化 xml 为标准 json
 exports.formatXML = (xml) => {
   const message = {};
 

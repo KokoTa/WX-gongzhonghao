@@ -27,6 +27,8 @@ const config = {
     uploadNewsImage: `${prefix}/media/uploadimg?`, // 上传永久图文的图片
     getTempleUrl: `${prefix}/media/get?`, // 获取临时素材
     getPermanentUrl: `${prefix}/material/get_material?`, // 获取永久素材
+    getMaterialList: `${prefix}/material/batchget_material?`, // 获取永久素材列表
+    delMaterial: `${prefix}/material/del_material?`, // 删除永久素材
   }
 };
 

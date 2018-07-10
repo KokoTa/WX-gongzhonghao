@@ -4,7 +4,9 @@
  * 这就是 wechat 作为一个参数的原因
  */
 const path = require('path');
-const fs = require('fs');
+
+let tempImage = '';
+let tempVideo = '';
 
 async function replyContent(msg, wechat) {
   // 当类型为事件
@@ -71,7 +73,7 @@ async function replyContent(msg, wechat) {
       reply.Content = '3. 你真的是个大笨蛋呢！'
     }
     else if (content === '4') {
-      // 临时图文
+      // 上传临时图文
       reply.MsgType = 'news';
       reply.Articles = [
         {
@@ -88,76 +90,129 @@ async function replyContent(msg, wechat) {
         }
       ];
       reply.ArticleCount = reply.Articles.length;
-    } else if (content === '5') {
-      // 临时图片
+    } 
+    else if (content === '5') {
+      // 上传临时图片
       const img = await wechat.uploadMaterial(path.join(__dirname, '../image/01.jpg'), 'image');
       reply.MsgType = 'image';
       reply.MediaId = img.media_id;
-    } else if (content === '6') {
-      // 临时视频
+      tempImage = img.media_id;
+    } 
+    else if (content === '6') {
+      // 上传临时视频
       // 如果网速卡，微信会发三次请求，当过了几秒后视频/音乐还没上传完，就判定失败
       const video = await wechat.uploadMaterial(path.join(__dirname, '../video/01.mp4'), 'video');
       reply.MsgType = 'video';
       reply.MediaId = video.media_id;
       reply.Title = '视频01';
       reply.Description = '这是一个测试视频';
-    } else if (content === '7') {
-      // 临时音乐
+      tempVideo = video.media_id;
+    } 
+    else if (content === '7') {
+      // 上传临时音乐
       const img = await wechat.uploadMaterial(path.join(__dirname, '../image/01.jpg'), 'image');
-      // const music = await wechat.uploadTemple(path.join(__dirname, '../music/01.mp3'), 'music');
       reply.MsgType = 'music';
       reply.Title = '音乐01';
       reply.Description = '这是一个测试音乐';
       reply.MusicURL = 'http://www.ytmp3.cn/?down/48732.mp3';
       reply.HQMusicUrl = 'http://www.ytmp3.cn/?down/48732.mp3';
       reply.ThumbMediaId = img.media_id;
-    } else if (content === '8') {
-      // 永久图片
+    } 
+    else if (content === '8') {
+      // 上传永久图片
       const img = await wechat.uploadMaterial(path.join(__dirname, '../image/01.jpg'), 'image', true);
-      reply.MsgType = 'image';
-      reply.MediaId = img.media_id;
-    } else if (content === '9') {
-      // 永久视频
+      if (img.media_id) {
+        reply.MsgType = 'image';
+        reply.MediaId = img.media_id;
+      } else {
+        reply.Content = '超过API调用次数 or 上传失败';
+      }
+    } 
+    else if (content === '9') {
+      // 上传永久视频
       const json = {
         "title": '永久视频',
         "introduction": '没有介绍'
       };
       const video = await wechat.uploadMaterial(path.join(__dirname, '../video/01.mp4'), 'video', true, { jsonString: JSON.stringify(json) });
-      reply.MsgType = 'video';
-      reply.MediaId = video.media_id;
-      reply.Title = '视频02';
-      reply.Description = '这是一个测试视频';
-    } else if (content === '10') {
-      // 永久图文，先传图，再传文
+      if (video.media_id) {
+        reply.MsgType = 'video';
+        reply.MediaId = video.media_id;
+        reply.Title = '视频02';
+        reply.Description = '这是一个测试视频';
+      } else {
+        reply.Content = '超过API调用次数 or 上传失败';
+      }
+        
+    } 
+    else if (content === '10') {
+      // 上传永久图文：先上传永久图作为封面，再上传图文内容中的图，然后将拼装好的图文信息上传
+      // 上传成功后通过返回的 media_id 再获取这个图文消息进行推送
       const permanentImg = await wechat.uploadMaterial(path.join(__dirname, '../image/01.jpg'), 'image', true);
       const newsImg = await wechat.uploadMaterial(path.join(__dirname, '../image/01.jpg'), 'image', true, { alias: 'news' });
       const articles = {
       "articles": [
-        {
-          "title": '图文消息',
-          "thumb_media_id": permanentImg.media_id,
-          "author": 'KokoTa',
-          "digest": 'Nonono',
-          "show_cover_pic": 1,
-          "content": newsImg.url,
-          "content_source_url": 'https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1444738729'
-        },
-        //若新增的是多图文素材，则此处应还有几段articles结构
-      ]
+          {
+            "title": '图文消息',
+            "thumb_media_id": permanentImg.media_id,
+            "author": 'KokoTa',
+            "digest": 'Nonono',
+            "show_cover_pic": 1,
+            "content": newsImg.url,
+            "content_source_url": 'https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1444738729'
+          },
+          //若新增的是多图文素材，则此处应还有几段articles结构
+        ]
+      };
+
+      const result = await wechat.uploadMaterial('', 'news', true, { articles });
+      if (result.media_id) {
+        const news = wechat.getMaterial(result.media_id, 'news', true);
+        const arr = [];
+        reply.MsgType = 'news';
+        news.news_item.forEach((item) => {
+          arr.push({
+            Title: item.title,
+            Description: item.digest,
+            PicUrl: permanentImg.media_id,
+            Url: item.url
+          });
+        });
+        reply.Articles = arr;
+      } else {
+        reply.Content = '超过API调用次数 or 上传失败';
       }
-      const result = await await wechat.uploadMaterial(path.join(__dirname, '../image/01.jpg'), 'news', true, { articles });
-      reply.Content = result;
-    } else if (content === '11') {
-      // 获取素材 - 图片
-      const img = await wechat.getMaterial('jmKacqEjDyG4nCIM42kR_YMZdPHeY73OfCC7ohE-JjJvQcnjyTPvbYgFsPOmq9r0', 'image');
+    } 
+    else if (content === '11') {
+      // 获取临时图片
+      const img = await wechat.getMaterial(tempImage, 'image');
       await wechat.downloadMaterial(img);
       reply.Content = '图片已下载到服务器';
-    } else if (content === '12') {
-      // 获取素材 - 视频
-      const video = await wechat.getMaterial('7SyD5CFXVnM-8KH8h9ELcDtuLRmpCp-1WlRLAANc7DjRX8yzEQvdNkftqzkUq5nj', 'video');
+    } 
+    else if (content === '12') {
+      // 获取临时视频
+      const video = await wechat.getMaterial(tempVideo, 'video');
       const json = JSON.parse(video);
       await wechat.downloadMaterial(json);
       reply.Content = '视频已下载到服务器';
+    }
+    else if (content === '13') {
+      // 获取永久图片列表
+      const list = await wechat.getMaterialList('image', 0, 20);
+      if (list.total_count > 0) {
+        reply.Content = `有${list.total_count}张永久图片`;
+      } else {
+        reply.Content = '超过API调用次数 or 木有永久图片';
+      }
+    }
+    else if (content === '14') {
+      // 删除永久图片素材
+      const result = await wechat.delMaterail('bf9a1ppxa6BMztH2wHjXjl04j8rStGRiciVsI2bcmhw');
+      if (result.errcode === 0) {
+        reply.Content = '删除永久图片素材成功';
+      } else {
+        reply.Content = '删除永久图片素材失败';
+      }
     }
 
     return reply;

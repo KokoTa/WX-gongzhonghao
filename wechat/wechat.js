@@ -6,7 +6,10 @@ const util = require('../libs/util');
 const fs = require('fs');
 const FormData = require('form-data');
 
-// access_token 处理函数
+/**
+ * access_token 处理函数
+ * @param {Object} config 微信配置对象 
+ */
 function Wechat(config) {
   const opts = config.wechat;
   this.appID = opts.appID;
@@ -39,8 +42,11 @@ function Wechat(config) {
   })
 }
 
-// 验证 token 合法性
-// PS:原型方法不要用箭头函数，this 的指向会有问题
+/**
+ * 验证 token 合法性
+ * PS:原型方法不要用箭头函数，this 的指向会有问题
+ * @param {Object} data 凭证对象
+ */
 Wechat.prototype.isValidAccessToken = function(data) {
   if (!data || !data.access_token || !data.expires_in) {
     return false;
@@ -59,7 +65,9 @@ Wechat.prototype.isValidAccessToken = function(data) {
   }
 }
 
-// 更新 token
+/**
+ * 更新 token
+ */
 Wechat.prototype.updateAccessToken = function() {
   const appID = this.appID;
   const appSecret = this.appSecret;
@@ -78,7 +86,11 @@ Wechat.prototype.updateAccessToken = function() {
   })
 }
 
-// 消息回复(不需要用到access_token)
+/**
+ * 消息回复(不需要用到access_token)
+ * @param {Object} ctx 上下文对象 
+ * @param {Object} msg 微信发送过来的信息对象
+ */
 Wechat.prototype.reply = async function(ctx, msg) {
   const xml = await util.formatReplyInfo(msg, this); // 格式化回复信息
   
@@ -87,7 +99,13 @@ Wechat.prototype.reply = async function(ctx, msg) {
   ctx.body = xml;
 }
 
-// 上传素材
+/**
+ * 上传素材
+ * @param {String} filePath 将要上传的素材地址 
+ * @param {String} type 类型
+ * @param {Boolean} permanent 是否永久素材 
+ * @param {Object} obj 永久素材额外参数
+ */
 Wechat.prototype.uploadMaterial = function(filePath, type, permanent = false, obj = {}) {
   const api = this.api;
   // 判断access_token合法性
@@ -142,7 +160,12 @@ Wechat.prototype.uploadMaterial = function(filePath, type, permanent = false, ob
   })
 }
 
-// 获取素材
+/**
+ * 获取素材
+ * @param {String} media_id 素材ID
+ * @param {String} type 类型
+ * @param {Boolean} permanent 是否永久素材 
+ */
 Wechat.prototype.getMaterial = function(media_id, type, permanent = false) {
   const api = this.api;
   return new Promise((resolve, reject) => {
@@ -158,13 +181,14 @@ Wechat.prototype.getMaterial = function(media_id, type, permanent = false) {
         // 是否是永久素材
         if (permanent) {
           url = `${api.getPermanentUrl}access_token=${this.access_token}`;
+          option.method = 'post';
           options.data = {
             media_id,
           };
         }
         
-        // 视频文件不支持https下载，调用该接口需http协议
-        if (type === 'video') {
+        // 临时视频文件不支持https下载，调用该接口需http协议
+        if (!permanent && type === 'video') {
           url.replace('https', 'http');
         }
 
@@ -177,6 +201,10 @@ Wechat.prototype.getMaterial = function(media_id, type, permanent = false) {
   })
 }
 
+/**
+ * 下载素材
+ * @param {Buffer | Object} data 下载的数据或链接 
+ */
 Wechat.prototype.downloadMaterial = async function(data) {
   if (Buffer.isBuffer(data)) {
     const buffer = Buffer.from(data);
@@ -200,6 +228,46 @@ Wechat.prototype.downloadMaterial = async function(data) {
       });
     })
   }
+}
+
+/**
+ * 获取永久素材列表
+ * @param {String} type 类型 
+ * @param {Number} offset 偏移量
+ * @param {Number} count 数量
+ */
+Wechat.prototype.getMaterialList = function(type = 'image', offset = 0, count = 20) {
+  const api = this.api;
+  const url = `${api.getMaterialList}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+    data: {
+      type,
+      offset,
+      count,
+    }
+  };
+
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 删除永久素材
+ * @param {String} media_id 素材ID
+ */
+Wechat.prototype.delMaterail = function(media_id) {
+  const api = this.api;
+  const url = `${api.delMaterial}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+    data: {
+      media_id,
+    }
+  };
+
+  return axios(options).then((res) => res.data);
 }
 
 module.exports = Wechat;
