@@ -470,13 +470,59 @@ Wechat.prototype.delMenu = function() {
  * @param {Object} menu 
  */
 Wechat.prototype.createMenu = function(menu) {
-  console.log(JSON.stringify(menu));
   const api = this.api;
   const url = `${api.createMenu}access_token=${this.access_token}`;
   const options = {
     method: 'POST',
     url,
     data: menu
+  }
+
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 创建二维码
+ * @param {Object} json 
+ */
+Wechat.prototype.createQRCode = function(json) {
+  const api = this.api;
+  const url = `${api.createQRCode}access_token=${this.access_token}`;
+  const options = {
+    method: 'POST',
+    url,
+    data: json
+  }
+
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 获取二维码图片
+ * @param {String} ticket 
+ */
+Wechat.prototype.getQRCode = function(ticket) {
+  const api = this.api;
+  const url = `${api.getQRCode}ticket=${encodeURI(ticket)}`;
+  const options = {
+    method: 'get',
+    url,
+    responseType: 'arraybuffer'
+  }
+
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 智能接口调用
+ */
+Wechat.prototype.smartSearch = function(json) {
+  const api = this.api;
+  const url = `${api.smartSearch}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+    data: json
   }
 
   return axios(options).then((res) => res.data);

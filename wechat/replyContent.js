@@ -4,6 +4,7 @@
  * 这就是 wechat 作为一个参数的原因
  */
 const path = require('path');
+const fs = require('fs');
 const menu = require('./menu');
 
 let tempImage = '';
@@ -16,14 +17,14 @@ async function replyContent(msg, wechat) {
       // 订阅
       return {
         MsgType: 'text',
-        Content: `您关注了公众号，事件Key：${msg.EventKey}、二维码的Ticket：${msg.Ticket}`,
+        Content: `您关注了公众号，事件Key：${msg.EventKey}；二维码的Ticket：${msg.Ticket}`,
       };
     } 
     else if (msg.Event === 'SCAN') {
       // 扫描
       return {
         MsgType: 'text',
-        Content: `事件Key：${msg.EventKey}、二维码的Ticket：${msg.Ticket}`
+        Content: `事件Key：${msg.EventKey}；二维码的Ticket：${msg.Ticket}`
       };
     } 
     else if (msg.Event === 'unsubscribe') {
@@ -70,7 +71,7 @@ async function replyContent(msg, wechat) {
       // 扫码并返回信息
       return {
         MsgType: 'text',
-        Content: `扫码类型：${msg.ScanCodeInfo.ScanType}、扫码结果：${msg.ScanCodeInfo.ScanResult}`
+        Content: `扫码类型：${msg.ScanCodeInfo.ScanType}；扫码结果：${msg.ScanCodeInfo.ScanResult}`
       };
     }
     else if (msg.Event === 'pic_sysphoto') {
@@ -249,7 +250,7 @@ async function replyContent(msg, wechat) {
       console.log('图片列表', imageList);
       console.log('视频列表', videoList);
       if (imageList.total_count > 0 || videoList.total_count > 0) {
-        reply.Content = `有${imageList.total_count}张永久图片、有${videoList.total_count}个永久视频`;
+        reply.Content = `有${imageList.total_count}张永久图片；有${videoList.total_count}个永久视频`;
       } else {
         reply.Content = '超过API调用次数 or 木有永久图片/视频';
       }
@@ -348,6 +349,34 @@ async function replyContent(msg, wechat) {
       } else {
         reply.Content = '删除菜单失败';
       }
+    }
+    else if (content === '20') {
+      // 生成二维码(订阅号用不了)
+      const ticket = await wechat.createQRCode({
+        expire_seconds: 1200,
+        action_name: 'QR_STR_SCENE',
+        action_info: {
+          scene: {
+            scene_str: '测试'
+          }
+        }
+      })
+      const codeImg = await wechat.getQRCode(ticket.ticket);
+      await wechat.downloadMaterial(codeImg);
+      reply.Content = '二维码已下载到服务器';
+      // 当然，如果二维码想发给用户，就需要先通过素材API上传，拿到MediaId后通过回复消息模板进行回复
+    }
+    else if (content === '21') {
+      // 智能接口搜索
+      const search = await wechat.smartSearch({
+        "query":"查一下明天从厦门到日本的东航机票",
+        "city":"厦门",
+        "category": "flight",
+        appid: msg.ToUserName,
+        uid: msg.FromUserName,
+      });
+      console.log(search);
+      reply.Content = search.semantic.details.answer;
     }
 
     return reply;

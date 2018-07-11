@@ -49,6 +49,11 @@ const config = {
     createMenu: `${prefix}/menu/create?`, // 创建菜单
     delMenu: `${prefix}/menu/delete?`, // 删除菜单
     getMenu: `${prefix}/menu/get?`, // 查询菜单
+    // 二维码API
+    createQRCode: `${prefix}/qrcode/create?`, // 创建二维码(临时、永久)
+    getQRCode: `https://mp.weixin.qq.com/cgi-bin/showqrcode?`, // 获取二维码
+    // 智能接口
+    smartSearch: `https://api.weixin.qq.com/semantic/semproxy/search?`, // 语义理解
   }
 };
 
