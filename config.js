@@ -43,6 +43,12 @@ const config = {
     getUser: `${prefix}/user/get?`, // 获取用户列表
     updateUserRemark: `${prefix}/user/info/updateremark?`, // 更改用户备注名(认证后可使用)
     getUserInfo: `${prefix}/user/info?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN`, // 获取某用户基本信息
+    // 群发API
+    sendAllMsg: `${prefix}/message/mass/sendall?`, // 按标签进行群发
+    // 菜单API
+    createMenu: `${prefix}/menu/create?`, // 创建菜单
+    delMenu: `${prefix}/menu/delete?`, // 删除菜单
+    getMenu: `${prefix}/menu/get?`, // 查询菜单
   }
 };
 

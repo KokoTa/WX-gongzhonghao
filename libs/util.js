@@ -44,7 +44,8 @@ exports.formatXML = (xml) => {
 
         // 如果是对象，那么就递归
         if (typeof val === 'object') {
-          message[key] = formatXML(val);
+          // console.log('this', this);
+          message[key] = this.formatXML(val);
         }
         // 如果不是对象，则赋值
         else {
@@ -55,7 +56,7 @@ exports.formatXML = (xml) => {
         message[key] = [];
         
         for (let j = 0; j < item.length; j++) {
-          message[key].push(formatXML(item[j]));
+          message[key].push(this.formatXML(item[j]));
         }
       }
     }
@@ -68,14 +69,18 @@ exports.formatXML = (xml) => {
 exports.formatReplyInfo = async (msg, wechat) => {
   const reply = await replyContent(msg, wechat); // 根据消息类型来决定回复内容
 
-  const info = {
-    ToUserName: msg.ToUserName,
-    FromUserName: msg.FromUserName,
-    CreateTime: new Date().getTime(),
-    ...reply,
-  };
+  if (reply) {
+    const info = {
+      ToUserName: msg.ToUserName,
+      FromUserName: msg.FromUserName,
+      CreateTime: new Date().getTime(),
+      ...reply,
+    };
 
-  const xml = createTemplate(info); // 转为 xml
-
-  return xml;
+    const xml = createTemplate(info); // 转为 xml
+    
+    return xml;
+  } else {
+    return false;
+  }
 }

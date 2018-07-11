@@ -4,6 +4,7 @@
  * 这就是 wechat 作为一个参数的原因
  */
 const path = require('path');
+const menu = require('./menu');
 
 let tempImage = '';
 let tempVideo = '';
@@ -15,14 +16,14 @@ async function replyContent(msg, wechat) {
       // 订阅
       return {
         MsgType: 'text',
-        Content: `您关注了公众号，事件Key ${msg.EventKey} - 二维码的Ticket ${msg.Ticket}`,
+        Content: `您关注了公众号，事件Key：${msg.EventKey}、二维码的Ticket：${msg.Ticket}`,
       };
     } 
     else if (msg.Event === 'SCAN') {
       // 扫描
       return {
         MsgType: 'text',
-        Content: `事件Key ${msg.EventKey} - 二维码的Ticket ${msg.Ticket}`
+        Content: `事件Key：${msg.EventKey}、二维码的Ticket：${msg.Ticket}`
       };
     } 
     else if (msg.Event === 'unsubscribe') {
@@ -33,24 +34,67 @@ async function replyContent(msg, wechat) {
       };
     } 
     else if (msg.Event === 'LOCATION') {
+      console.log('LOCATION');
       // 上报地理位置
       return {
         MsgType: 'text',
-        Content: `您上报的地理位置为，经度 ${msg.Longitude}-纬度 ${msg.Latitude}-精度 ${msg.Precision}`
+        Content: `您上报的地理位置为，经度${msg.Longitude}-纬度${msg.Latitude}-精度${msg.Precision}`
       };
     } 
     else if (msg.Event === 'CLICK') {
+      console.log('CLICK');
       // 点击菜单
       return {
         MsgType: 'text',
-        Content: `您点击了菜单，事件Key ${msg.EventKey}`
+        Content: `您点击了菜单，事件Key：${msg.EventKey}`
       };
     } 
     else if (msg.Event === 'VIEW') {
-      // 点击菜单跳转链接
+      console.log('VIEW');
+      // 点击菜单跳转链接(返回信息无效)
       return {
         MsgType: 'text',
-        Content: `您点击了菜单跳转链接，事件Key ${msg.EventKey}`
+        Content: `哦呼`
+      };
+    }
+    else if (msg.Event === 'scancode_push') {
+      console.log('scancode_push');
+      // 扫码(返回信息无效)
+      return {
+        MsgType: 'text',
+        Content: `哦呼`
+      };
+    }
+    else if (msg.Event === 'scancode_waitmsg') {
+      console.log('scancode_waitmsg');
+      // 扫码并返回信息
+      return {
+        MsgType: 'text',
+        Content: `扫码类型：${msg.ScanCodeInfo.ScanType}、扫码结果：${msg.ScanCodeInfo.ScanResult}`
+      };
+    }
+    else if (msg.Event === 'pic_sysphoto') {
+      console.log('pic_sysphoto');
+      // 打开系统拍照(返回信息无效)
+      return {
+        MsgType: 'text',
+        Content: `哦呼`
+      };
+    }
+    else if (msg.Event === 'pic_photo_or_album') {
+      console.log('pic_photo_or_album');
+      // 打开系统拍照或系统相册(返回信息无效)
+      return {
+        MsgType: 'text',
+        Content: `哦呼`
+      };
+    }
+    else if (msg.Event === 'pic_weixin') {
+      // 打开微信相册(返回信息无效)
+      console.log('pic_weixin');
+      return {
+        MsgType: 'text',
+        Content: `哦呼`
       };
     }
     
@@ -86,7 +130,7 @@ async function replyContent(msg, wechat) {
           Title: '我是图文信息，编号02',
           Description: '略略略',
           PicUrl: 'http://img.mp.itc.cn/upload/20170304/4c40a0728257448dbbf509850c91e61f_th.JPG',
-          Url: 'https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140543'
+          Url: 'https://www.baidu.com'
         }
       ];
       reply.ArticleCount = reply.Articles.length;
@@ -168,6 +212,8 @@ async function replyContent(msg, wechat) {
       const result = await wechat.uploadMaterial('', 'news', true, { articles });
       if (result.media_id) {
         const news = wechat.getMaterial(result.media_id, 'news', true);
+        console.log('上传永久图文素材', result);
+        console.log('获得永久图文素材', news);
         const arr = [];
         reply.MsgType = 'news';
         news.news_item.forEach((item) => {
@@ -198,11 +244,14 @@ async function replyContent(msg, wechat) {
     }
     else if (content === '13') {
       // 获取永久图片列表
-      const list = await wechat.getMaterialList('image', 0, 20);
-      if (list.total_count > 0) {
-        reply.Content = `有${list.total_count}张永久图片`;
+      const imageList = await wechat.getMaterialList('image', 0, 20);
+      const videoList = await wechat.getMaterialList('video', 0, 20);
+      console.log('图片列表', imageList);
+      console.log('视频列表', videoList);
+      if (imageList.total_count > 0 || videoList.total_count > 0) {
+        reply.Content = `有${imageList.total_count}张永久图片、有${videoList.total_count}个永久视频`;
       } else {
-        reply.Content = '超过API调用次数 or 木有永久图片';
+        reply.Content = '超过API调用次数 or 木有永久图片/视频';
       }
     }
     else if (content === '14') {
@@ -273,6 +322,33 @@ async function replyContent(msg, wechat) {
         reply.Content = '获取用户基本信息失败';
       }
     }
+    else if (content === '18') {
+      // 群发消息，图片等因为没有权限，所以发送失败
+      // const images = await wechat.getMaterialList('image', 0, 20);
+      // const result = await wechat.sendAllMsg('image', images.item[0], 100);
+      const result = await wechat.sendAllMsg('text', { Content: '群发08' });
+      console.log(result);
+      if (!result.errcode) {
+        reply.Content = '开始群发';
+      } else {
+        reply.Content = '群发失败';
+      }
+    }
+    else if (content === '19') {
+      // 创建菜单(先删除后创建)
+      const delMenu = await wechat.delMenu();
+      if (!delMenu.errcode) {
+        const createMenu = await wechat.createMenu(menu);
+        console.log(createMenu);
+        if (!createMenu.errcode) {
+          reply.Content = '创建菜单成功，请重新关注公众号';
+        } else {
+          reply.Content = '创建菜单失败';
+        }
+      } else {
+        reply.Content = '删除菜单失败';
+      }
+    }
 
     return reply;
   }
@@ -281,6 +357,28 @@ async function replyContent(msg, wechat) {
     return {
       MsgType: 'text',
       Content: `您所在的位置为：${msg.Label}`
+    };
+  }
+  // 当类型为图片
+  else if (msg.MsgType === 'image') {
+    return {
+      MsgType: 'image',
+      MediaId: msg.MediaId
+    };
+  }
+  // 当类型为视频
+  else if (msg.MsgType === 'video') {
+    // 这里返回视频不可用
+    // return {
+    //   MsgType: 'video',
+    //   MediaId: msg.MediaId,
+    //   Title: '当前上传视频',
+    //   Description: '我是描述'
+    // };
+    // 这里就返回文字好了
+    return {
+      MsgType: 'text',
+      MediaId: '视频上传成功'
     };
   }
 }

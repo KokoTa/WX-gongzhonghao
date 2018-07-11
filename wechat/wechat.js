@@ -95,8 +95,12 @@ Wechat.prototype.reply = async function(ctx, msg) {
   const xml = await util.formatReplyInfo(msg, this); // 格式化回复信息
   
   ctx.status = 200;
-  ctx.type = 'application/xml';
-  ctx.body = xml;
+  if (xml) {
+    ctx.type = 'application/xml';
+    ctx.body = xml;
+  } else {
+    ctx.body = 'success';
+  }
 }
 
 /**
@@ -171,7 +175,7 @@ Wechat.prototype.getMaterial = function(media_id, type, permanent = false) {
   return new Promise((resolve, reject) => {
     this.getAccessToken().then(async (data) => {
       if (this.isValidAccessToken(JSON.parse(data))) {
-        const url = `${api.getTempleUrl}access_token=${this.access_token}&media_id=${media_id}`;
+        let url = `${api.getTempleUrl}access_token=${this.access_token}&media_id=${media_id}`;
         const options = {
           method: 'get',
           url: url,
@@ -290,6 +294,9 @@ Wechat.prototype.createTag = function(tagName) {
   return axios(options).then((res) => res.data);
 }
 
+/**
+ * 获取用户标签
+ */
 Wechat.prototype.getTag = function() {
   const api = this.api;
   const url = `${api.getTag}access_token=${this.access_token}`;
@@ -301,6 +308,10 @@ Wechat.prototype.getTag = function() {
   return axios(options).then((res) => res.data);
 }
 
+/**
+ * 给用户打标签
+ * @param {String} openid 
+ */
 Wechat.prototype.batchTag = function(openid) {
   const api = this.api;
   const url = `${api.batchTag}access_token=${this.access_token}`;
@@ -318,6 +329,9 @@ Wechat.prototype.batchTag = function(openid) {
   return axios(options).then((res) => res.data);
 }
 
+/**
+ * 获取用户列表
+ */
 Wechat.prototype.getUser = function () {
   const api = this.api;
   const url = `${api.getUser}access_token=${this.access_token}`;
@@ -329,6 +343,11 @@ Wechat.prototype.getUser = function () {
   return axios(options).then((res) => res.data);
 }
 
+/**
+ * 更新用户备注名
+ * @param {String} openid 
+ * @param {String} newName 
+ */
 Wechat.prototype.updateUserRemark = function(openid, newName) {
   const api = this.api;
   const url = `${api.updateUserRemark}access_token=${this.access_token}`;
@@ -344,6 +363,10 @@ Wechat.prototype.updateUserRemark = function(openid, newName) {
   return axios(options).then((res) => res.data);
 }
 
+/**
+ * 获取用户基本信息
+ * @param {String} openid 
+ */
 Wechat.prototype.getUserInfo = function(openid) {
   const api = this.api;
   const url = api.getUserInfo.replace(/ACCESS_TOKEN/, this.access_token).replace(/OPENID/, openid);
@@ -351,6 +374,110 @@ Wechat.prototype.getUserInfo = function(openid) {
     method: 'get',
     url
   };
+
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 群发消息
+ * @param {String} type 类型
+ * @param {Object} msg 消息对象
+ * @param {Number} tagId 标签ID
+ */
+Wechat.prototype.sendAllMsg = function(type, msg, tagId) {
+  // https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140837
+  const api = this.api;
+  const url = `${api.sendAllMsg}access_token=${this.access_token}`;
+  const data = {
+    filter: {
+      is_to_all: true
+    },
+    msgtype: 'text',
+  };
+  const options = {
+    method: 'post',
+    url,
+    data,
+  };
+
+  if (tagId) {
+    data.filter.is_to_all = false;
+    data.filter.tag_id = tagId;
+  }
+
+  // 图文消息
+  if (type === 'mpnews') {
+    data.msgtype = 'mpnews';
+    data.mpnews = {
+      media_id: msg.media_id
+    };
+  }
+  // 文本
+  if (type === 'text') {
+    data.text = {
+      content: msg.Content
+    };
+  }
+  // 语音/音频
+  if (type === 'voice') {
+    data.msgtype = 'voice';
+    data.voice = {
+      media_id: msg.media_id
+    };
+  }
+  // 图片
+  if (type === 'image') {
+    data.msgtype = 'image';
+    data.image = {
+      media_id: msg.media_id
+    };
+  }
+  // 视频(需要特殊处理)
+  if (type === 'video') {
+    data.msgtype = 'video';
+    data.video = {
+      media_id: msg.media_id
+    };
+  }
+  // 卡券
+  if (type === 'wxcard') {
+    data.msgtype = 'wxcard';
+    data.wxcard = {
+      card_id: msg.card_id
+    };
+  }
+  
+  console.log(JSON.stringify(options));
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 删除菜单
+ */
+Wechat.prototype.delMenu = function() {
+  const api = this.api;
+  const url = `${api.delMenu}access_token=${this.access_token}`;
+  const options = {
+    method: 'post',
+    url,
+  }
+
+  return axios(options).then((res) => res.data);
+}
+
+/**
+ * 创建菜单
+ * @param {Object} menu 
+ */
+Wechat.prototype.createMenu = function(menu) {
+  console.log(JSON.stringify(menu));
+  const api = this.api;
+  const url = `${api.createMenu}access_token=${this.access_token}`;
+  const options = {
+    method: 'POST',
+    url,
+    data: menu
+  }
 
   return axios(options).then((res) => res.data);
 }
