@@ -4,6 +4,7 @@
 const path = require('path');
 const util = require('./libs/util');
 const accessTokenFile = path.join(__dirname, './wechat/accessTokenFile.txt');
+const ticketFile = path.join(__dirname, './wechat/ticketFile.txt');
 const prefix = 'https://api.weixin.qq.com/cgi-bin';
 
 const config = {
@@ -17,6 +18,13 @@ const config = {
     saveAccessToken(data) {
       data = JSON.stringify(data);
       return util.writeFileAsync(accessTokenFile, data);
+    },
+    getTicket() {
+      return util.readFileAsync(ticketFile);
+    },
+    saveTicket(data) {
+      data = JSON.stringify(data);
+      return util.writeFileAsync(ticketFile, data);
     }
   },
   api: {
@@ -54,6 +62,9 @@ const config = {
     getQRCode: `https://mp.weixin.qq.com/cgi-bin/showqrcode?`, // 获取二维码
     // 智能接口
     smartSearch: `https://api.weixin.qq.com/semantic/semproxy/search?`, // 语义理解
+
+    // JS-SDK API
+    getTicket: `https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&`, // 获取jsapi票据
   }
 };
 

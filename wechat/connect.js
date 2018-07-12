@@ -3,6 +3,7 @@
  */
 const sha1 = require('sha1');
 const Wechat = require('./wechat');
+const Sign = require('../sdk/sign');
 const util = require('../libs/util');
 
 // 该导出函数用来管理微信接口
@@ -28,7 +29,20 @@ module.exports = (config) => {
       if (sha === signature) {
         ctx.body = echostr + '';
       } else {
-        ctx.body = "不是微信的请求，拒绝处理";
+        // 生成 js-sdk 签名
+        if (ctx.path === '/index') {
+          console.log(1);
+          await ctx.render('index.pug');
+        }
+        else if (ctx.path === '/sign') {
+          // 注意传入的 url 是请求的来源页
+          console.log('referer', ctx.request.header.referer);
+          const obj = Sign(wechat.ticket, ctx.request.header.referer.split('#')[0]);
+          ctx.body = obj;
+        } 
+        else {
+          ctx.body = "不是微信的请求，拒绝处理";
+        }
         return false;
       }
     }

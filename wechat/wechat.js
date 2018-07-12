@@ -1,5 +1,5 @@
 /**
- * 微信功能处理：凭证管理，回复管理
+ * 微信功能处理
  */
 const axios = require('axios');
 const util = require('../libs/util');
@@ -16,11 +16,21 @@ function Wechat(config) {
   this.appSecret = opts.appSecret;
   this.getAccessToken = opts.getAccessToken;
   this.saveAccessToken = opts.saveAccessToken;
+  this.getTicket = opts.getTicket;
+  this.saveTicket = opts.saveTicket;
 
   const api = config.api;
   this.api = api;
 
-  this.getAccessToken().then((data) => {
+  this.fetchAccessToken();
+  this.fetchTicket();
+}
+
+/**
+ * 获取 access_token
+ */
+Wechat.prototype.fetchAccessToken = function() {
+  return this.getAccessToken().then((data) => {
     // 本地查找 token，找到就解析，找不到就重新获取
     try {
       data = JSON.parse(data);
@@ -36,14 +46,13 @@ function Wechat(config) {
   }).then((data) => {
     console.log(data);
     this.access_token = data.access_token;
-    this.expires_in = data.expires_in;
-    
+
     this.saveAccessToken(data);
   })
 }
 
 /**
- * 验证 token 合法性
+ * 验证 access_token 合法性
  * PS:原型方法不要用箭头函数，this 的指向会有问题
  * @param {Object} data 凭证对象
  */
@@ -66,13 +75,77 @@ Wechat.prototype.isValidAccessToken = function(data) {
 }
 
 /**
- * 更新 token
+ * 更新 access_token
  */
 Wechat.prototype.updateAccessToken = function() {
   const appID = this.appID;
   const appSecret = this.appSecret;
   const api = this.api;
   const url = `${api.accessTokenUrl}&appid=${appID}&secret=${appSecret}`;
+
+  return axios.get(url).then((res) => {
+    if (res.data) {
+      const data = res.data;
+      const expires_in = (data.expires_in - 20) * 1000 + new Date().getTime(); // 希望提前 20 秒更新 token
+
+      data.expires_in = expires_in; // 更新过期时间
+
+      return data;
+    }
+  })
+}
+
+/**
+ * 获取 js-sdk ticket
+ */
+Wechat.prototype.fetchTicket = function() {
+  return this.getTicket().then((data) => {
+    try {
+      data = JSON.parse(data);
+    } catch(e) {
+      return this.updateTicket();
+    }
+    // 检查合法性，合法就保存，不合法就重新获取
+    if (this.isValidTicket(data)) {
+      return data;
+    } else {
+      return this.updateTicket();
+    }
+  }).then((data) => {
+    console.log(data);
+    this.ticket = data.ticket;
+
+    this.saveTicket(data);
+  })
+}
+
+/**
+ * 验证 ticket 合法性
+ * @param {Object} data ticket对象
+ */
+Wechat.prototype.isValidTicket = function(data) {
+  if (!data || !data.ticket || !data.expires_in) {
+    return false;
+  }
+
+  const expires_in = data.expires_in;
+  const now = (new Date().getTime());
+  // 未超时返回 true，超时返回 false
+  if (now < expires_in) {
+    console.log('ticket 未超时');
+    return true;
+  } else {
+    console.log('ticket 已超时');
+    return false;
+  }
+}
+
+/**
+ * 更新 ticket
+ */
+Wechat.prototype.updateTicket = function() {
+  const api = this.api;
+  const url = `${api.getTicket}access_token=${this.access_token}`;
 
   return axios.get(url).then((res) => {
     if (res.data) {
@@ -114,8 +187,7 @@ Wechat.prototype.uploadMaterial = function(filePath, type, permanent = false, ob
   const api = this.api;
   // 判断access_token合法性
   return new Promise((resolve, reject) => {
-    this.getAccessToken().then((data) => {
-      if (this.isValidAccessToken(JSON.parse(data))) {
+    this.fetchAccessToken().then(() => {
         let url = `${api.uploadTempleUrl}access_token=${this.access_token}&type=${type}`;
         // 是否永久素材
         if (permanent) {
@@ -156,10 +228,6 @@ Wechat.prototype.uploadMaterial = function(filePath, type, permanent = false, ob
             });
           });
         }
-
-      } else {
-        throw new Error('access_token 已超时');
-      }
     }).catch(err => console.log(err));
   })
 }
