@@ -6,6 +6,9 @@
 const path = require('path');
 const fs = require('fs');
 const menu = require('./menu');
+const qiniu = require('qiniu');
+const configKey = require('../config');
+const stream = require('stream');
 
 let tempImage = '';
 let tempVideo = '';
@@ -377,6 +380,53 @@ async function replyContent(msg, wechat) {
       });
       console.log(search);
       reply.Content = search.semantic.details.answer;
+    }
+    else if (content === '22') {
+      // 先上传临时图片，然后获取临时图片，上传到七牛云，再将上传后的链接返回给用户
+      if (tempImage) {
+        const img = await wechat.getMaterial(tempImage, 'image');
+        const buffer = Buffer.from(img);
+        const bufferStream = new stream.PassThrough();
+        bufferStream.end(buffer);
+        const readStream = bufferStream;
+
+        // 服务器直传图片
+        // https://developer.qiniu.com/kodo/sdk/1289/nodejs#server-upload
+        const config = new qiniu.conf.Config();
+        config.zone = qiniu.zone.Zone_z2;
+        const keyObj = configKey.qiniuKey;
+        const accessKey = keyObj.accessKey;
+        const secretKey = keyObj.secretKey;
+        const key = 'image/test.jpg';
+        const options = {
+          scope: `file:${key}`,
+          expires: 60,
+        };
+        const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
+        const putPolicy = new qiniu.rs.PutPolicy(options);
+        const uploadToken = putPolicy.uploadToken(mac);
+        const formUploader = new qiniu.form_up.FormUploader(config);
+        const putExtra = new qiniu.form_up.PutExtra();
+        const readableStream = readStream; // 可读的流
+        await new Promise((resolve) => {
+          formUploader.putStream(uploadToken, key, readableStream, putExtra, function(respErr,
+            respBody, respInfo) {
+            if (respErr) {
+              throw respErr;
+            }
+            if (respInfo.statusCode == 200) {
+              console.log(respBody);
+              reply.Content = `http://pbsnydhoj.bkt.clouddn.com/${key}`;
+              resolve();
+            } else {
+              console.log(respInfo.statusCode);
+              console.log(respBody);
+            }
+          });
+        })
+      } else {
+        reply.Content = '请先上传临时图片，输入5';  
+      }
     }
 
     return reply;

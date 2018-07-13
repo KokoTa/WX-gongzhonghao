@@ -65,7 +65,11 @@ const config = {
 
     // JS-SDK API
     getTicket: `https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&`, // 获取jsapi票据
-  }
+  },
+  qiniuKey: {
+    accessKey: 'c5s3dIUTqAcd_wS-AoFrrletCMR8wxyvVS4EJvEl',
+    secretKey: 'p7XpPz_XvvZea6BtsLiotCu4UIq_RqKc-QDWNHEX',
+  },
 };
 
 module.exports = config;
