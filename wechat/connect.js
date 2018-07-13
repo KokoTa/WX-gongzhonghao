@@ -37,8 +37,12 @@ module.exports = (config) => {
         else if (ctx.path === '/sign') {
           // 注意传入的 url 是请求的来源页
           console.log('referer', ctx.request.header.referer);
-          const obj = Sign(wechat.ticket, ctx.request.header.referer.split('#')[0]);
-          ctx.body = obj;
+          if (ctx.request.header.referer) {
+            const obj = Sign(wechat.ticket, ctx.request.header.referer.split('#')[0]);
+            ctx.body = obj;
+          } else {
+            ctx.body = "获取签名失败";
+          }
         } 
         else {
           ctx.body = "不是微信的请求，拒绝处理";

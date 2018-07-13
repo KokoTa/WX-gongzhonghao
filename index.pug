@@ -101,7 +101,7 @@
   
   script.
     alert(location.href);
-    axios.get('http://rg658s.natappfree.cc/sign').then((res) => {
+    axios.get('http://wx.kokota.cn/sign').then((res) => {
       // 进行验证
       wx.config({
           debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
@@ -194,7 +194,7 @@
                     wx.onMenuShareAppMessage({
                       title: movie.title, // 分享标题
                       desc: `导演：${obj.director}\n上映年份：${obj.year}`, // 分享描述
-                      link: 'http://rg658s.natappfree.cc/index', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                      link: 'http://wx.kokota.cn/index', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                       imgUrl: obj.poster, // 分享图标
                       success() {
                         // 用户点击了分享后执行的回调函数
@@ -221,7 +221,7 @@
         wx.onMenuShareAppMessage({
           title: '默认分享标题', // 分享标题
           desc: '默认分享描述', // 分享描述
-          link: 'http://rg658s.natappfree.cc/index', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+          link: 'http://wx.kokota.cn/index', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
           imgUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1531385596239&di=95d8c278e1d1d25f6de28c91ada648dc&imgtype=0&src=http%3A%2F%2Fimg.sccnn.com%2Fbimg%2F338%2F24556.jpg', // 分享图标
           success() {
             // 用户点击了分享后执行的回调函数
