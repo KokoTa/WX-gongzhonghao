@@ -1,0 +1,8 @@
+/* pages/posts/loading/loading.wxss */
+
+.loading {
+  padding-bottom: 40rpx;
+  font-size: 30rpx;
+  text-align: center;
+  color:
+}

@@ -1,0 +1,7 @@
+<!--pages/posts/component/component1.wxml-->
+<view class='component1'>
+  <view>Components1</view>
+  <view>{{componentText}}</view>
+  <view>{{otherText}}</view>
+  <slot></slot>
+</view>

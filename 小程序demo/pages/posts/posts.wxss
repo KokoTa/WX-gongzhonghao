@@ -1,0 +1,41 @@
+@import "./loading/loading.wxss";
+
+.posts-swiper {
+  width: 100%;
+  height: 500rpx;
+}
+
+.posts-swiper image {
+  width: 100%;
+  height: 100%;
+}
+
+.posts-content {
+  padding: 20rpx;
+  padding-top: 40rpx;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.posts-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding: 20rpx 0;
+  flex: 1;
+}
+
+.posts-item .posts-image {
+  width: 250rpx;
+  height: 250rpx;
+  border-radius: 50%;
+  margin-bottom: 10rpx;
+}
+
+.posts-item .posts-text {
+  font-size: 16px;
+  padding-left: 20rpx;
+  padding-bottom: 10rpx;
+  text-align: center;
+}

@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/movie/movie",
+    "pages/movie/movie-detail/movie-detail",
+    "pages/logs/logs",
+    "pages/posts/posts",
+    "pages/posts/post-detail/post-detail",
+    "pages/posts/loading/loading"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#20b2aa",
+    "navigationBarTitleText": "我是标题",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "backgroundColor": "lightseagreen",
+    "list": [
+      {
+        "iconPath": "icon/2.png",
+        "selectedIconPath": "icon/1.png",
+        "pagePath": "pages/posts/posts",
+        "text": "书籍列表"
+      },
+      {
+        "iconPath": "icon/2.png",
+        "selectedIconPath": "icon/1.png",
+        "pagePath": "pages/movie/movie",
+        "text": "电影列表"
+      }
+    ]
+  }
+}

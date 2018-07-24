@@ -1,0 +1,14 @@
+<!--index.wxml-->
+<view class='container'>
+  <view class='index-top'>
+    <image
+      class='index-top-image'
+      mode='aspectFill'
+      src='{{userInfo.avatarUrl}}'>
+    </image>
+    <text class='index-top-text'>{{userInfo.nickName}}</text>
+  </view>
+  <view>
+    <button class='index-bottom-button' bindtap='goToPosts'>点击进入</button>
+  </view>
+</view>

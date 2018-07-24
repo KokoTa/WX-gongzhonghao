@@ -1,0 +1,25 @@
+<import src="./loading/loading.wxml" />
+
+<scroll-view class='container' scroll-y bindscrolltolower="toLower" lower-threshold="30">
+  <view>
+    <swiper class='posts-swiper' indicator-dots='true' autoplay='autoplay' indicator-color='#666' indicator-active-color='#fff' circular='true'>
+      <swiper-item wx:for="{{swiperData}}" wx:key="{{index}}">
+        <image src='{{item.url}}' mode='aspectFill'></image>
+      </swiper-item>
+    </swiper>
+    <view class='posts-content'>
+      <view class='posts-item' wx:for="{{postsData}}" wx:key="{{inex}}" bindtap='jumpToPost' data-item="{{item}}">
+        <image class='posts-image' src="{{item.images.medium}}" mode='aspectFill'></image>
+        <text class='posts-text'>{{item.title}}</text>
+        <text class='posts-text'>{{item.pubdate}}</text>
+      </view>
+    </view>
+    <!-- 引入模板 -->
+    <!-- <template is="t1" data="{{ btnText }}" /> {{A.getString()}} -->
+    <template is="loading"></template>
+    <!-- 引入自定义组件 -->
+    <!-- <cp component-text="component string">
+      <text>Slot one</text>
+    </cp> -->
+  </view>
+</scroll-view>

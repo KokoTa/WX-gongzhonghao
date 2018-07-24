@@ -1,0 +1,27 @@
+<!--pages/movie/movie-detail/movie-detail.wxml-->
+<view class='movie-detail'>
+  <view class='poster'>
+    <image src="{{movieData.images.large}}" mode='aspectFit'></image>
+  </view>
+  <view class='content'>
+    <view class='rating'>
+      <text class='r1'>豆瓣评分</text>
+      <text class='r2'>{{movieData.rating.average}}</text>
+      <text class='r1'>{{movieData.ratings_count}}人</text>
+    </view>
+    <view class='header'>
+      <text>{{movieData.title}}</text>
+    </view>
+    <view class='info'>
+      <text>标签：{{movieData.tags}}</text>
+      <text>原名：{{movieData.original_title}}</text>
+      <text>上映时间：{{movieData.year}}</text>
+      <text>国家：{{movieData.countries}}</text>
+    </view>
+    <view class='hr'></view>
+    <view class='intro'>
+      <view>简介:</view>
+      <text>{{movieData.summary}}</text>
+    </view>
+  </view>
+</view>

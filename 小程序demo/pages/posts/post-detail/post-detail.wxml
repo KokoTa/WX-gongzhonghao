@@ -1,0 +1,37 @@
+<!--pages/posts/post-detail/post-detail.wxml-->
+<view class='post-detail'>
+  <view class='post-image-wrap'>
+    <image class='post-image' src='{{postData.images.large}}' mode='aspectFill'></image>
+    <view class='audio' catchtap='audioPlay'>
+      <text>{{playStatus}}</text>
+    </view>
+  </view>
+  <view class='post-detail-content'>
+    <view class='info'>
+      <text class='header'>{{postData.title}}</text>
+      <button class="collect" open-type="share">分享</button>
+      <button class="collect {{collectText === '收藏' ? '' : 'active'}}" bindtap='collectBook'>{{collectText}}</button>
+      <view class='detail'>
+        <view>
+          <text>作者：{{postData.author[0]}}</text>
+        </view>
+        <view>
+          <text>出版日期：{{postData.pubdate}}</text>
+        </view>
+        <view>
+          <text>出版社：{{postData.publisher}}</text>
+        </view>
+        <view>
+          <text>标签：{{postData.tags}}</text>
+        </view>
+        <view>
+          <text>价格：{{postData.price}}</text>
+        </view>
+      </view>
+    </view>
+    <view class='hr'></view>
+    <view class='summary'>
+      <text>简介：{{postData.summary}}</text>
+    </view>
+  </view>
+</view>

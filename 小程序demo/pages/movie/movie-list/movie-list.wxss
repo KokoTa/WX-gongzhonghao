@@ -1,0 +1,21 @@
+/* pages/movie/movie-list/movie-list.wxss */
+@import "../../posts/loading/loading.wxss";
+
+.movie-scroll {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  margin-top: 10rpx;
+  height: 100%;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20rpx 0;
+}
+.item text {
+  line-height: 1.5;
+}

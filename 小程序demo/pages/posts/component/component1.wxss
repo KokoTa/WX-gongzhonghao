@@ -1,0 +1,4 @@
+/* pages/posts/component/component1.wxss */
+.component1 {
+  background: yellowgreen;
+}

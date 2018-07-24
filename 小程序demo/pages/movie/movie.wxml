@@ -1,0 +1,8 @@
+<!--pages/movie/movie.wxml-->
+
+<view class='container'>
+  <view class='search'>
+    <input class='search-input' placeholder-class="holder-class" placeholder='输入内容搜索电影' auto-focus bindconfirm="searchMovie" value="{{searchText}}"></input>
+  </view>
+  <movie-list class="movie-list" id="movie-list"></movie-list>
+</view>

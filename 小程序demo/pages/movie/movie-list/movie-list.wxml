@@ -1,0 +1,11 @@
+<!--pages/movie/movie-list/movie-list.wxml-->
+<import src="../../posts/loading/loading.wxml"/>
+
+<scroll-view class='movie-scroll' scroll-y lower-threshold="30" bindscrolltolower="toLower">
+  <view class='item' wx:for="{{movies}}" wx:key="index" catchtap='goMovieDetail' data-id="{{item.id}}">
+    <image src="{{item.images.large}}" mode='aspectFit'></image>
+    <text>电影名：{{item.title}}</text>
+    <text>导演：{{item.directors[0].name}}</text>
+  </view>
+  <template is="loading"></template>
+</scroll-view>
