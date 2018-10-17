@@ -9,8 +9,8 @@ const prefix = 'https://api.weixin.qq.com/cgi-bin';
 
 const config = {
   wechat: { // 对应公众平台上的参数
-    appID: 'wx475c09b524a46560',
-    appSecret: 'e92d22149d5a3ef19b8f6102b642737e',
+    appID: '',
+    appSecret: '',
     token: 'KokoTa',
     getAccessToken() {
       return util.readFileAsync(accessTokenFile);

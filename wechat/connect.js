@@ -24,16 +24,20 @@ module.exports = (config) => {
     const str = [token, timestamp, nonce].sort().join('');
     const sha = sha1(str);
 
-    // 如果是 GET 请求，说明是连接请求
     if (ctx.method === 'GET') {
+      // 如果请求中带有参数且通过参数获得对应的签名，则说明是微信服务器的连接请求
       if (sha === signature) {
+        console.log('Get connect sign');
         ctx.body = echostr + '';
-      } else {
-        // 生成 js-sdk 签名
+      }
+      // 否则就是页面或API请求
+      else {
+        // 请求 index
         if (ctx.path === '/index') {
-          console.log(1);
+          console.log('Path is: /index');
           await ctx.render('index.pug');
         }
+        // 获取JS-SDK签名
         else if (ctx.path === '/sign') {
           // 注意传入的 url 是请求的来源页
           console.log('referer', ctx.request.header.referer);
@@ -43,14 +47,15 @@ module.exports = (config) => {
           } else {
             ctx.body = "获取签名失败";
           }
-        } 
+        }
         else {
-          ctx.body = "不是微信的请求，拒绝处理";
+          ctx.body = "非法路径，拒绝处理";
         }
         return false;
       }
     }
-    // 如果是 POST　请求，说明是消息发送请求
+    
+    
     if (ctx.method === 'POST') {
       if (sha !== signature) {
         ctx.body = "不是微信的请求，拒绝处理";
